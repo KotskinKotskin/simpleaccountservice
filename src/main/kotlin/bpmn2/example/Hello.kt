@@ -7,32 +7,34 @@ import io.javalin.apibuilder.ApiBuilder.post
 import model.Operation
 
 
-fun main(args: Array<String>) {
 
-    val accountDAO = AccountDAO()
+        fun main(args: Array<String>) {
+            val port = args[0].toInt()
 
-    val app = Javalin.create().apply {
-        exception(Exception::class.java) { e, ctx -> e.printStackTrace() }
-        error(404) { ctx -> ctx.json("not found") }
-    }.start(8999)
+            val accountDAO = AccountDAO()
 
-    app.routes {
-        post("/operation") { ctx ->
-            val operation = ctx.body<Operation>()
-            accountDAO.operation(id = operation.accountId, operation = operation.operation, amount = operation.amount)
+            val app = Javalin.create().apply {
+                exception(Exception::class.java) { e, ctx -> e.printStackTrace() }
+                error(404) { ctx -> ctx.json("not found") }
+            }.start(port)
+
+            app.routes {
+                post("/operation") { ctx ->
+                    val operation = ctx.body<Operation>()
+                    accountDAO.operation(id = operation.accountId, operation = operation.operation, amount = operation.amount)
+
+                }
+
+                get("/account/:account-id") { ctx ->
+                    ctx.json(accountDAO.findById(ctx.pathParam("account-id").toInt())!!)
+                }
+
+
+            }
+
 
         }
 
-        get("/account/:account-id") { ctx ->
-            ctx.json(accountDAO.findById(ctx.pathParam("account-id").toInt())!!)
-        }
-
-
-
-    }
-
-
-}
 
 
 
